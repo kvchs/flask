@@ -6,7 +6,7 @@ from flask import abort
 from flask_script import Manager
 
 app = Flask(__name__)
-#manager = Manager(app)
+#manager = Manager(apppp)
 #app = Flask(__name__)
 
 
