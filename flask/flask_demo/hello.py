@@ -21,25 +21,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import sessionmaker
-
-
-#ENGINE=create_engine("mysql+pymysql://root@127.0.0.1:3306/digchouti?charset=utf8", max_overflow=5)
-engine = create_engine('mysql+pymysql://root:123456@localhost/data_charley', encoding='utf-8', echo=True)
-Base = declarative_base()
-Session = sessionmaker(bind=engine)
-sql_session = Session()
+from flask_sqlalchemy import SQLAlchemy
+basedir = os.path.abspath(os.path.dirname(__file__))
+from sqlalchemy import Column
+from sqlalchemy import ForeignKey
 
 
 
-#Base.metadata.create_all(engine)
-# basedir = os.path.abspath(os.path.dirname(__file__))
+
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
-# app.config['SQLALCHEMY_COMMIN_ON_TEARDOWN'] = True
-# db = SQLAlchemy(app)
+
 app.config['SECRET_KEY'] = "this is my secret"
-#manager = Manager(apppp)
-#app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, "data.sqlite")
+app.config["SQLALCHEMY_COMMIT_NO_TEARDOWN"] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =False
+db = SQLAlchemy(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
@@ -84,28 +80,25 @@ class NameForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-class Role(Base):
+class Role(db.Model):
     __tablename__ = 'roles'
     id = Column(Integer, primary_key=True)
     name = Column(String(64), unique=True)
-
+    users = db.relationship('User', backref='role')
 
     def __repr__(self):
         return '<Role %r>' % self.name
 
 
-class User(Base):
+
+class User(db.Model):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     username = Column(String(64), unique=True, index=True)
+    role_id = Column(Integer, ForeignKey('roles.id'))
 
     def __repr__(self):
         return '<User %r>' % self.username
-
-
-# user = User(id='2', username="charley")
-# sql_session.add(user)
-# sql_session.commit()
 
 
 
